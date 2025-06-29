@@ -13,21 +13,19 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-
-data class Hotel(val id: Int, val name: String, val x: Int, val y: Int)
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.workspaceapp.viewmodel.HotelViewModel
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.runtime.Composable
 
 @Composable
 fun MainScreen(
     onMyPageClick: () -> Unit = {},
-    onHotelSelected: () -> Unit = {}
+    onHotelSelected: (hotelId: String) -> Unit = {},
+    viewModel: HotelViewModel = viewModel()
 ) {
-    val hotels = listOf(
-        Hotel(1, "ホテルA", 1, 2),
-        Hotel(2, "ホテルB", 3, 1),
-        Hotel(3, "ホテルC", 2, 3)
-    )
+    val hotels by viewModel.hotels.collectAsState()
 
     Box(
         modifier = Modifier
@@ -76,14 +74,19 @@ fun MainScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text(
-                            text = hotel.name,
-                            style = MaterialTheme.typography.titleMedium,
-                            modifier = Modifier.weight(1f)
-                        )
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = hotel.name,
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                            Text(
+                                text = hotel.address,
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
                         Button(
                             onClick = {
-                                onHotelSelected()
+                                onHotelSelected(hotel.id)
                             }
                         ) {
                             Text("詳細")
@@ -98,7 +101,8 @@ fun MainScreen(
 @Preview(showBackground = true)
 @Composable
 fun MainScreenPreview() {
-    MaterialTheme {
-        MainScreen()
-    }
+    MainScreen(
+        onMyPageClick = {},
+        onHotelSelected = {}
+    )
 }

@@ -7,48 +7,55 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.workspaceapp.viewmodel.HotelViewModel
 import androidx.compose.ui.tooling.preview.Preview
-
-data class Room(val id: Int, val name: String, val price: Int, val isAvailable: Boolean)
+import androidx.compose.runtime.Composable
+import androidx.compose.material3.MaterialTheme
 
 @Composable
 fun RoomListScreen(
-    onRoomSelected: (roomName: String, price: Int) -> Unit
+    hotelId: String,
+    onRoomSelected: (roomName: String, price: Int) -> Unit,
+    viewModel: HotelViewModel = viewModel()
 ) {
-    val rooms = listOf(
-        Room(1, "シングルルーム", 8000, true),
-        Room(2, "ダブルルーム", 12000, true),
-        Room(3, "スイートルーム", 25000, false)
-    )
+    val hotels by viewModel.hotels.collectAsState()
+    val selectedHotel = hotels.find { it.id == hotelId }
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        Text("空き部屋一覧", style = MaterialTheme.typography.headlineMedium)
+        Text(
+            text = selectedHotel?.name ?: "ホテルが見つかりません",
+            style = MaterialTheme.typography.headlineMedium
+        )
         Spacer(modifier = Modifier.height(16.dp))
-        LazyColumn {
-            items(rooms) { room ->
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp)
-                ) {
-                    Row(
+
+        selectedHotel?.let { hotel ->
+            LazyColumn {
+                items(hotel.rooms) { room ->
+                    Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(16.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                            .padding(vertical = 8.dp)
                     ) {
-                        Column {
-                            Text(room.name, style = MaterialTheme.typography.titleMedium)
-                            Text("料金: ￥${room.price}", style = MaterialTheme.typography.bodyMedium)
-                            if (!room.isAvailable) {
-                                Text("満室", color = MaterialTheme.colorScheme.error)
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Column {
+                                Text(room.name, style = MaterialTheme.typography.titleMedium)
+                                Text("料金: ￥${room.pricePerHour}", style = MaterialTheme.typography.bodyMedium)
+                                if (!room.isAvailable) {
+                                    Text("満室", color = MaterialTheme.colorScheme.error)
+                                }
                             }
-                        }
-                        if (room.isAvailable) {
-                            Button(onClick = {
-                                onRoomSelected(room.name, room.price)
-                            }) {
-                                Text("予約")
+                            if (room.isAvailable) {
+                                Button(onClick = {
+                                    onRoomSelected(room.name, room.pricePerHour)
+                                }) {
+                                    Text("予約")
+                                }
                             }
                         }
                     }
@@ -61,7 +68,11 @@ fun RoomListScreen(
 @Preview(showBackground = true)
 @Composable
 fun RoomListScreenPreview() {
+    // ダミーViewModelを用意する場合は、必要に応じてFakeHotelViewModelを作成してください
     MaterialTheme {
-        RoomListScreen(onRoomSelected = { _, _ -> })
+        RoomListScreen(
+            hotelId = "1",
+            onRoomSelected = { _, _ -> }
+        )
     }
 }
