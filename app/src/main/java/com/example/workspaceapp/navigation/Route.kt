@@ -6,4 +6,5 @@ object Route {
     const val ROOM_DETAIL = "room_detail"
     const val RESERVATION = "reservation"
     const val MYPAGE = "mypage"
+    const val RESERVATION_CONFIRMATION = "reservation_confirmation"
 }

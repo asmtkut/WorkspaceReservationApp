@@ -10,28 +10,28 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.workspaceapp.viewmodel.HotelViewModel
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.runtime.Composable
-import androidx.compose.material3.MaterialTheme
 
 @Composable
 fun RoomListScreen(
     hotelId: String,
-    onRoomSelected: (roomName: String, price: Int) -> Unit,
+    onRoomSelected: (roomId: String) -> Unit,
     viewModel: HotelViewModel = viewModel()
 ) {
     val hotels by viewModel.hotels.collectAsState()
     val selectedHotel = hotels.find { it.id == hotelId }
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .padding(16.dp)) {
         Text(
             text = selectedHotel?.name ?: "ホテルが見つかりません",
             style = MaterialTheme.typography.headlineMedium
         )
         Spacer(modifier = Modifier.height(16.dp))
 
-        selectedHotel?.let { hotel ->
+        selectedHotel?.rooms?.let { rooms ->
             LazyColumn {
-                items(hotel.rooms) { room ->
+                items(rooms) { room ->
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -52,7 +52,7 @@ fun RoomListScreen(
                             }
                             if (room.isAvailable) {
                                 Button(onClick = {
-                                    onRoomSelected(room.name, room.pricePerHour)
+                                    onRoomSelected(room.id)  // ✅ roomId だけ渡す
                                 }) {
                                     Text("予約")
                                 }
@@ -68,11 +68,10 @@ fun RoomListScreen(
 @Preview(showBackground = true)
 @Composable
 fun RoomListScreenPreview() {
-    // ダミーViewModelを用意する場合は、必要に応じてFakeHotelViewModelを作成してください
     MaterialTheme {
         RoomListScreen(
-            hotelId = "1",
-            onRoomSelected = { _, _ -> }
+            hotelId = "h001",
+            onRoomSelected = { /* no-op */ }
         )
     }
 }
